@@ -1,0 +1,247 @@
+{
+  "name": "AI-Enabled Healthcare Assistant with Symptom Checking and Appointment Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "options": {
+          "loadPreviousSession": "memory"
+        }
+      },
+      "id": "93ad9c7b-6877-4aea-aa26-8f267b0d3208",
+      "name": "Patient Chat Interface",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        1712,
+        368
+      ],
+      "webhookId": "35aff02e-8202-4ad2-8a37-fad8ad188874"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "id": "0493262c-b8db-4645-bf68-84937ab563a8",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        2064,
+        592
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "FG4wte0mRQZ6pln1",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "ae69deb1-c04a-4add-bfe2-fa63751aa59e",
+      "name": "Conversation Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1784,
+        592
+      ]
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a professional healthcare assistant AI designed to help patients with symptom checking, appointment scheduling, and general health inquiries.\n\nYour responsibilities:\n1. SYMPTOM CHECKING: Ask relevant questions about symptoms, duration, severity, and related factors. Provide general health guidance but ALWAYS recommend consulting a healthcare professional for diagnosis.\n2. APPOINTMENT SCHEDULING: Use the Appointment Scheduler tool to check availability and book appointments when patients request them. Ask for preferred dates/times and appointment type.\n3. EMAIL NOTIFICATIONS: Use the Email Notification Tool to send appointment confirmations, reminders, and follow-up information to patients.\n4. PATIENT ENGAGEMENT: Be empathetic, professional, and clear. Answer health-related questions while emphasizing the importance of professional medical advice.\n\nIMPORTANT GUIDELINES:\n- Never provide definitive medical diagnoses\n- Always recommend consulting healthcare professionals for serious symptoms\n- Be compassionate and understanding\n- Maintain patient privacy and confidentiality\n- For emergencies, immediately advise calling emergency services\n- Keep responses clear and concise"
+        }
+      },
+      "id": "c5b71726-5b3c-4268-a2e5-f742ad8925be",
+      "name": "Healthcare AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        2120,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "madhanshankar2006@gmail.com",
+          "mode": "list",
+          "cachedResultName": "madhanshankar2006@gmail.com"
+        },
+        "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('After', `Appointment start date/time`, 'string') }}",
+        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Before', `Appointment end date/time`, 'string') }}",
+        "options": {}
+      },
+      "id": "9dcbf117-732d-4cbf-8bc3-7bc471106f37",
+      "name": "Appointment Scheduler",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        2192,
+        592
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "BatPc3JpzD5iqeR3",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', `Patient email address`, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', `Email subject line`, 'string') }}",
+        "message": "={{ $fromAI('email_body', 'Email message content', 'string') }}",
+        "options": {}
+      },
+      "id": "d2f2a253-d31b-4676-8aff-02a761d4b0b6",
+      "name": "Email Notification Tool",
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        2320,
+        592
+      ],
+      "webhookId": "9710cba5-6dc4-466c-93fc-d43612c0459a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "BGCW2v3TjjXfxULS",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1At2aXb-ohF0hVbb5GrHb1xF-AeQ38E0vdRo66goPtF0/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Sheet1",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "2164e645-368c-4c05-924d-5a134f8ccffd",
+      "name": "Log Patient Interaction",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2528,
+        368
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "mVmx9QdiNKhBxaZa",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Patient Chat Interface": {
+      "main": [
+        [
+          {
+            "node": "Healthcare AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Healthcare AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Conversation Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Healthcare AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Patient Chat Interface",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Appointment Scheduler": {
+      "ai_tool": [
+        [
+          {
+            "node": "Healthcare AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Notification Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "Healthcare AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Healthcare AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Log Patient Interaction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "96e2b4c8-c66f-424c-a433-b4b98a9c363f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "59d6305c9952f699f5943b45f5d8d761892d14eac2f6c02802ff94c0cd92232b"
+  },
+  "id": "bRndeDVTBUyzutHb",
+  "tags": []
+}
